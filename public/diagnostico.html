@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Diagnóstico de mídias | Lu Corrêa Animal Care</title>
+<style>
+  :root { --p:#d81b60; --ok:#128a4b; --bad:#c62828; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:24px; background:#fafafa; color:#2d3436;
+         font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  .wrap { max-width:1100px; margin:0 auto; }
+  h1 { font-size:24px; margin:0 0 4px; }
+  p.sub { margin:0 0 20px; color:#666; font-size:14px; }
+  #resumo { padding:16px 20px; border-radius:14px; font-weight:700; margin-bottom:24px;
+            background:#fff; border:1px solid #e6e6e6; }
+  #resumo.ok { background:#e8f5ec; border-color:#b6e0c4; color:var(--ok); }
+  #resumo.bad { background:#fdecea; border-color:#f5c2bd; color:var(--bad); }
+  .grid { display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); }
+  .card { background:#fff; border:1px solid #e6e6e6; border-radius:14px; overflow:hidden;
+          display:flex; flex-direction:column; }
+  .thumb { height:150px; background:#f0f0f0 center/cover no-repeat;
+           display:flex; align-items:center; justify-content:center; color:#aaa; font-size:13px; }
+  .thumb img, .thumb video { width:100%; height:100%; object-fit:cover; display:block; }
+  .meta { padding:10px 12px; font-size:12px; word-break:break-all; }
+  .meta b { display:block; font-size:12px; margin-bottom:4px; }
+  .tag { display:inline-block; padding:2px 8px; border-radius:999px; font-weight:700;
+         font-size:11px; color:#fff; margin-bottom:6px; }
+  .tag.ok { background:var(--ok); } .tag.bad { background:var(--bad); } .tag.wait { background:#999; }
+  .sec { margin:28px 0 12px; font-size:13px; text-transform:uppercase;
+         letter-spacing:.08em; color:var(--p); font-weight:800; }
+  a.back { display:inline-block; margin-top:28px; color:var(--p); font-weight:700; }
+  code { background:#f3f3f3; padding:1px 5px; border-radius:4px; font-size:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Diagnóstico de mídias</h1>
+  <p class="sub">Esta página carrega cada arquivo de imagem e vídeo do site e mostra o resultado real.
+     Abra-a no endereço publicado para confirmar que tudo está no ar. Página não indexada.</p>
+
+  <div id="resumo">Testando…</div>
+  <div id="saida"></div>
+
+  <a class="back" href="/">&larr; Voltar para o site</a>
+</div>
+
+<script>
+(function () {
+  var grupos = [
+    { titulo: "Logotipo e ícones", tipo: "img", itens: [
+      "/assets/logo/lu-correa-animal-care-logo.png",
+      "/assets/logo/logo.png",
+      "/assets/logo/logo-original.jpg",
+      "/icon.png", "/apple-icon.png", "/favicon-32.png"
+    ]},
+    { titulo: "Fotografias usadas no site", tipo: "img", itens: [
+      "/assets/images/lucy-dog1.jpg",
+      "/assets/images/lucy-dog2.jpg",
+      "/assets/images/lucy-portrait.jpg",
+      "/assets/images/additional.jpg",
+      "/assets/images/og-image.jpg"
+    ]},
+    { titulo: "Nomes alternativos (compatibilidade)", tipo: "img", itens: [
+      "/assets/images/lucy-with-dog-01.jpg",
+      "/assets/images/lucy-with-dog-02.jpg",
+      "/assets/images/lucy-correa.jpg",
+      "/assets/images/additional-photo.jpg",
+      "/assets/images/optimized/lucy-dog1.webp",
+      "/assets/images/optimized/lucy-dog2.webp",
+      "/assets/images/optimized/lucy-portrait.webp",
+      "/assets/images/optimized/additional.webp"
+    ]},
+    { titulo: "Fotografias originais preservadas", tipo: "img", itens: [
+      "/assets/images/original/lucy-dog1.jpg",
+      "/assets/images/original/lucy-dog2.jpg",
+      "/assets/images/original/lucy-portrait.jpg",
+      "/assets/images/original/additional.jpg"
+    ]},
+    { titulo: "Pôsteres dos vídeos", tipo: "img", itens: [
+      "/assets/posters/care-poster.jpg",
+      "/assets/posters/vaccine-poster.jpg"
+    ]},
+    { titulo: "Vídeos", tipo: "video", itens: [
+      "/assets/videos/care.mp4",
+      "/assets/videos/vaccine.mp4"
+    ]}
+  ];
+
+  var saida = document.getElementById("saida");
+  var resumo = document.getElementById("resumo");
+  var total = 0, feitos = 0, falhas = 0;
+
+  function atualiza() {
+    if (feitos < total) { resumo.textContent = "Testando… " + feitos + "/" + total; return; }
+    resumo.className = falhas ? "bad" : "ok";
+    resumo.textContent = falhas
+      ? "❌ " + falhas + " de " + total + " arquivos NÃO carregaram. Veja os cartões vermelhos."
+      : "✅ Todos os " + total + " arquivos carregaram corretamente.";
+  }
+
+  function marca(card, tipo, texto) {
+    var t = card.querySelector(".tag");
+    t.className = "tag " + tipo;
+    t.textContent = texto;
+    feitos++; if (tipo === "bad") falhas++;
+    atualiza();
+  }
+
+  grupos.forEach(function (g) {
+    var h = document.createElement("div");
+    h.className = "sec"; h.textContent = g.titulo;
+    saida.appendChild(h);
+
+    var grid = document.createElement("div");
+    grid.className = "grid";
+    saida.appendChild(grid);
+
+    g.itens.forEach(function (url) {
+      total++;
+      var card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML =
+        '<div class="thumb">carregando…</div>' +
+        '<div class="meta"><span class="tag wait">testando</span><b></b><span class="info"></span></div>';
+      card.querySelector("b").textContent = url;
+      grid.appendChild(card);
+
+      var thumb = card.querySelector(".thumb");
+      var info = card.querySelector(".info");
+
+      // Mede o tamanho real transferido
+      fetch(url, { cache: "no-store" })
+        .then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.blob();
+        })
+        .then(function (b) {
+          info.textContent = (b.size / 1024).toFixed(0) + " KB · " + (b.type || "sem tipo");
+        })
+        .catch(function (e) { info.textContent = String(e.message); });
+
+      if (g.tipo === "img") {
+        var im = new Image();
+        im.onload = function () {
+          thumb.innerHTML = ""; thumb.appendChild(im);
+          marca(card, "ok", im.naturalWidth + "×" + im.naturalHeight);
+        };
+        im.onerror = function () {
+          thumb.textContent = "não carregou";
+          marca(card, "bad", "FALHOU");
+        };
+        im.src = url;
+        im.alt = url;
+      } else {
+        var v = document.createElement("video");
+        v.preload = "metadata"; v.controls = true; v.playsInline = true;
+        v.onloadedmetadata = function () {
+          thumb.innerHTML = ""; thumb.appendChild(v);
+          marca(card, "ok", Math.round(v.duration) + "s · " + v.videoWidth + "×" + v.videoHeight);
+        };
+        v.onerror = function () {
+          thumb.textContent = "não carregou";
+          marca(card, "bad", "FALHOU");
+        };
+        v.src = url;
+      }
+    });
+  });
+
+  atualiza();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# Lu Corrêa Animal Care — regras de reescrita para o Netlify
+#
+# No Next.js com `output: "export"`, o conteúdo da pasta `public/` é copiado
+# para a RAIZ da pasta publicada (`out/`). Ou seja:
+#
+#     public/assets/images/lucy-dog1.jpg   ->   /assets/images/lucy-dog1.jpg
+#
+# Por isso o pacote de publicação NÃO contém (e não deve conter) uma pasta
+# chamada `public/`: as mídias já estão na raiz, exatamente nos caminhos que
+# o HTML referencia.
+#
+# A regra abaixo é apenas uma rede de segurança: se algum HTML antigo, link
+# compartilhado ou marcador apontar para `/public/assets/...`, o arquivo real
+# é servido assim mesmo (status 200, sem redirecionamento visível).
+/public/*    /:splat    200

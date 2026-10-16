@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #d81b60;
+  --color-brand-primary-light: #fce4ec;
+  --color-brand-accent: #e1bee7;
+  --color-brand-bg: #fafafa;
+  --color-brand-text: #2d3436;
+}
+
+:root {
+  --brand-primary: #d81b60;
+  --brand-primary-light: #fce4ec;
+  --brand-accent: #e1bee7;
+  --brand-bg: #fafafa;
+  --brand-text: #2d3436;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+body {
+  background-color: var(--brand-bg);
+  color: var(--brand-text);
+  overflow-x: hidden;
+}
+
+section[id] {
+  scroll-margin-top: 6rem;
+}
+
+a:focus-visible,
+button:focus-visible,
+video:focus-visible {
+  outline: 3px solid var(--brand-primary);
+  outline-offset: 3px;
+  border-radius: 9999px;
+}
+
+/* ==================================================================
+   SISTEMA DE REVELAÇÃO — VISÍVEL POR PADRÃO
+   ------------------------------------------------------------------
+   Regra de ouro: o conteúdo (fotos, vídeos, cards) NUNCA depende de
+   JavaScript para ficar visível. O estado base é opacidade 1.
+   A ocultação inicial só existe quando o <html> recebe a classe
+   `js-anim`, aplicada por um script que só roda se o IntersectionObserver
+   existir e se o usuário não pedir movimento reduzido.
+   Se o JS falhar, não carregar ou for bloqueado → tudo permanece visível.
+   ================================================================== */
+[data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+.js-anim [data-reveal] {
+  transition:
+    opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.js-anim [data-reveal]:not([data-shown]) {
+  opacity: 0;
+}
+
+.js-anim [data-reveal="up"]:not([data-shown]) {
+  transform: translateY(26px);
+}
+
+.js-anim [data-reveal="left"]:not([data-shown]) {
+  transform: translateX(-42px);
+}
+
+.js-anim [data-reveal="right"]:not([data-shown]) {
+  transform: translateX(42px);
+}
+
+.js-anim [data-reveal="zoom"]:not([data-shown]) {
+  transform: scale(0.94);
+}
+
+.js-anim [data-reveal][data-shown] {
+  will-change: auto;
+}
+
+/* Elevação suave dos cards de serviço (CSS puro, sem JS) */
+.card-lift {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.card-lift:hover {
+  transform: translateY(-6px);
+}
+
+/* Botão flutuante do WhatsApp: entra por CSS, nunca fica invisível sem JS */
+@keyframes float-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.float-in {
+  animation: float-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.9s backwards;
+}
+
+/* Sem JavaScript: garante que nada fique escondido */
+.no-js [data-reveal],
+.no-js [data-reveal]:not([data-shown]) {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Preferência por movimento reduzido: sem animação, conteúdo sempre visível */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  [data-reveal],
+  .js-anim [data-reveal]:not([data-shown]) {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
